@@ -27,7 +27,6 @@ public class HotelBookingFacade {
     private final NotificationService notifications;
     private final LoyaltyService loyalty;
 
-    // Package-private on purpose: subsystem types must not appear in the public API.
     HotelBookingFacade(RoomInventory inventory,
                        PricingService pricing,
                        PaymentProcessor payments,
@@ -46,10 +45,6 @@ public class HotelBookingFacade {
         return inventory.isAvailable(roomType, toStayPeriod(checkIn, checkOut));
     }
 
-    /**
-     * Books a room: reserve -> apply loyalty discount -> price -> charge -> save -> award points -> notify.
-     * If any critical step fails, the steps already done are undone.
-     */
     public BookingConfirmation bookRoom(BookingRequest request) {
         StayPeriod period = toStayPeriod(request.checkIn(), request.checkOut());
         Room room = reserveRoom(request.roomType(), period);
@@ -70,7 +65,6 @@ public class HotelBookingFacade {
         }
     }
 
-    /** Cancels a booking: refund -> release room -> mark cancelled -> revoke points -> notify. */
     public void cancelBooking(String bookingId) {
         Booking booking = findActiveBooking(bookingId);
         try {
@@ -115,7 +109,6 @@ public class HotelBookingFacade {
         }
     }
 
-    /** A lost e-mail must not undo a paid booking, so the failure is reported, not thrown. */
     private boolean sendConfirmationQuietly(Booking booking) {
         try {
             notifications.sendConfirmation(booking);
@@ -129,7 +122,6 @@ public class HotelBookingFacade {
         try {
             notifications.sendCancellation(booking);
         } catch (NotificationFailedException ignored) {
-            // The cancellation itself already succeeded.
         }
     }
 }
