@@ -121,7 +121,6 @@ public class HotelBookingFacade {
     private void sendCancellationQuietly(Booking booking) {
         try {
             notifications.sendCancellation(booking);
-        } catch (NotificationFailedException ignored) {
-        }
+        } catch (NotificationFailedException ignored) {        }
     }
 }
